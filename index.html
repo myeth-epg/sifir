@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乘法表游戏：漂浮挑战</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            background-color: #87CEEB; /* Sky blue */
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .game-area {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            background: linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%);
+            border: 5px solid #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            font-weight: bold;
+            color: #D32F2F;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 20px;
+            border-radius: 15px;
+            border: 3px solid #D32F2F;
+            z-index: 10;
+        }
+        
+        .level-indicator {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            background: rgba(255,255,255,0.7);
+            padding: 5px 15px;
+            border-radius: 10px;
+            z-index: 5;
+        }
+
+        .instruction-text {
+            position: absolute;
+            top: 110px;
+            width: 100%;
+            text-align: center;
+            font-size: 1.8em;
+            color: #1565C0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .floating-prefix {
+            position: absolute;
+            top: 40%;
+            left: 8%;
+            background-color: #FF9800;
+            color: white;
+            font-size: 4em;
+            font-weight: bold;
+            padding: 20px 40px;
+            border-radius: 50px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            animation: floatSlowly 4s ease-in-out infinite alternate;
+            z-index: 10;
+        }
+
+        @keyframes floatSlowly {
+            0% { transform: translate(0, 0) rotate(-5deg); }
+            100% { transform: translate(60px, -40px) rotate(5deg); }
+        }
+
+        .words-container {
+            position: absolute;
+            right: 8%;
+            top: 35%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 250px;
+        }
+
+        .root-word {
+            background-color: white;
+            color: #333;
+            font-size: 3em;
+            font-weight: bold;
+            padding: 10px 10px;
+            border: 4px solid #4CAF50;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            text-align: center;
+        }
+
+        .root-word:hover {
+            transform: scale(1.05);
+            background-color: #e8f5e9;
+        }
+
+        .correct {
+            background-color: #4CAF50 !important;
+            color: white !important;
+            border-color: #2E7D32 !important;
+            animation: bounce 0.5s;
+        }
+
+        .incorrect {
+            background-color: #F44336 !important;
+            color: white !important;
+            border-color: #B71C1C !important;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .grayed-out {
+            background-color: #e0e0e0 !important;
+            color: #9e9e9e !important;
+            border-color: #bdbdbd !important;
+            opacity: 0.5;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+
+        .feedback-message {
+            position: absolute;
+            bottom: 130px;
+            width: 100%;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            transition: color 0.3s;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 20;
+        }
+
+        .combined-word-display {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            text-align: center;
+            font-size: 4em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.6);
+            display: none;
+            z-index: 40;
+        }
+        
+        .action-btn {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+            z-index: 30;
+        }
+        
+        .action-btn:hover {
+            background: #0056b3;
+        }
+
+        .music-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255,255,255,0.7);
+            border: 2px solid #ccc;
+            padding: 5px 15px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 10;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .music-btn:hover { background: rgba(255,255,255,1); border-color: #999; }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                width: 100%;
+                height: 100vh;
+                max-height: none;
+                border: none;
+                border-radius: 0;
+            }
+            .level-indicator, .music-btn { top: 5px; }
+            .timer-display { font-size: 1.5em; top: 55px; }
+            .instruction-text { font-size: 1.1em; top: 95px; padding: 0 10px; line-height: 1.2; }
+            .floating-prefix { font-size: 2em; padding: 10px 20px; left: 5%; top: 26%; }
+            .words-container { width: 55%; right: 5%; top: 42%; gap: 10px; }
+            .root-word { font-size: 1.8em; padding: 8px 5px; }
+            .feedback-message { font-size: 1em; bottom: 130px; padding: 0 5px; line-height: 1.2; }
+            .combined-word-display { font-size: 2.2em; left: 50%; top: 25%; width: 100%; white-space: normal; line-height: 1.2; }
+            .action-btn { width: 90%; font-size: 1.1em; padding: 12px; bottom: 70px; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgm" loop>
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="game-area" id="game-area">
+        <div class="timer-display" id="timer-display">时间: 5秒</div>
+        <div class="level-indicator" id="level-indicator">
+            第 1 关<br>
+            <span style="font-size: 0.8em; color: #2E7D32;">✅ <span id="score-b">0</span></span> | 
+            <span style="font-size: 0.8em; color: #c62828;">❌ <span id="score-s">0</span></span>
+        </div>
+        <button class="music-btn" id="music-btn" onclick="toggleMusic()">🔇 音乐</button>
+        
+        <div class="instruction-text" id="instruction-text">请为这道乘法题选择正确的答案。</div>
+        
+        <div class="combined-word-display" id="result-word"></div>
+
+        <div class="floating-prefix" id="prefix"></div>
+
+        <div class="words-container" id="words-container">
+        </div>
+
+        <div class="feedback-message" id="feedback-msg"></div>
+    </div>
+
+    <script>
+        let currentRound = 1;
+        let gameActive = true;
+        let scoreBetul = 0;
+        let scoreSalah = 0;
+        let hasMadeMistakeThisRound = false;
+        let currentQuestion = {};
+        let isMusicPlaying = false;
+        let allQuestions = [];
+        let totalQuestions = 0;
+        let originalData = [];
+        let countdownTimer;
+        let timeLeft = 5;
+        
+        function toggleMusic() {
+            const bgm = document.getElementById('bgm');
+            const btn = document.getElementById('music-btn');
+            if (isMusicPlaying) {
+                bgm.pause();
+                btn.textContent = "🔇 音乐";
+            } else {
+                bgm.play().catch(e => console.log("Audio play failed:", e));
+                btn.textContent = "🔊 音乐";
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch('sifir_data.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                originalData = await response.json();
+                
+                // Copy data to questions pool and shuffle
+                allQuestions = [...originalData];
+                shuffleArray(allQuestions);
+                totalQuestions = allQuestions.length;
+                
+                loadLevel();
+            } catch (error) {
+                console.error('Error loading JSON:', error);
+                document.getElementById('feedback-msg').textContent = "错误：无法读取 JSON 文件。请使用 'Run_Game_Server.bat' 运行。";
+                document.getElementById('feedback-msg').style.color = "red";
+            }
+        }
+
+        function generateWrongAnswers(correctAnswer, num1, num2) {
+            let wrongs = new Set();
+            while(wrongs.size < 2) {
+                let variationType = Math.floor(Math.random() * 4);
+                let wrong = 0;
+                
+                if (variationType === 0) {
+                    wrong = (num1 + 1) * num2;
+                } else if (variationType === 1) {
+                    wrong = num1 * (num2 + 1);
+                } else if (variationType === 2) {
+                    wrong = (num1 - 1 > 0 ? num1 - 1 : 1) * num2;
+                } else {
+                    wrong = correctAnswer + (Math.floor(Math.random() * 5) + 1) * (Math.random() < 0.5 ? 1 : -1);
+                }
+                
+                if (wrong !== correctAnswer && wrong > 0) {
+                    wrongs.add(wrong);
+                }
+            }
+            return Array.from(wrongs);
+        }
+
+        function loadLevel() {
+            if (allQuestions.length === 0) {
+                // You can implement an end screen here if you'd like
+                document.getElementById('feedback-msg').textContent = "恭喜你！你已完成所有题目！";
+                document.getElementById('timer-display').style.display = 'none';
+                return;
+            }
+            
+            gameActive = true;
+            hasMadeMistakeThisRound = false;
+            currentQuestion = allQuestions.pop();
+            
+            clearInterval(countdownTimer);
+            timeLeft = 5;
+            document.getElementById('timer-display').textContent = `时间: ${timeLeft}秒`;
+            countdownTimer = setInterval(() => {
+                if (!gameActive) return;
+                timeLeft--;
+                document.getElementById('timer-display').textContent = `时间: ${timeLeft}秒`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    timeIsUp();
+                }
+            }, 1000);
+            
+            document.getElementById('level-indicator').innerHTML = `
+                第 ${currentRound} 关 / 共 ${totalQuestions} 关<br>
+                <span style="font-size: 0.8em; color: #2E7D32;">✅ <span id="score-b">${scoreBetul}</span></span> | 
+                <span style="font-size: 0.8em; color: #c62828;">❌ <span id="score-s">${scoreSalah}</span></span>
+            `;
+            
+            const prefixEl = document.getElementById('prefix');
+            prefixEl.textContent = currentQuestion.display + " = ";
+            
+            prefixEl.style.display = 'block';
+            prefixEl.style.animation = 'floatSlowly 4s ease-in-out infinite alternate';
+            prefixEl.style.transition = 'none';
+            prefixEl.style.left = '8%';
+            prefixEl.style.top = '40%';
+            
+            document.getElementById('result-word').style.display = 'none';
+            
+            const instructionMsg = document.getElementById('instruction-text');
+            instructionMsg.innerHTML = `请为 "<strong>${currentQuestion.display}</strong>" 选择正确的答案。`;
+            instructionMsg.style.display = 'block';
+
+            const feedbackMsg = document.getElementById('feedback-msg');
+            feedbackMsg.textContent = "";
+            
+            let wrongAnswers = generateWrongAnswers(currentQuestion.answer, currentQuestion.num1, currentQuestion.num2);
+            
+            let choices = [
+                { text: currentQuestion.answer.toString(), isCorrect: true, reason: "" },
+                { text: wrongAnswers[0].toString(), isCorrect: false, reason: "答错了！请再试一次。" },
+                { text: wrongAnswers[1].toString(), isCorrect: false, reason: "答错了！请再试一次。" }
+            ];
+            
+            choices = shuffleArray(choices);
+
+            const container = document.getElementById('words-container');
+            container.innerHTML = ''; 
+            
+            choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'root-word';
+                btn.innerHTML = choice.text;
+                btn.onclick = () => checkAnswer(choice, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(choice, btn) {
+            if (!gameActive) return;
+
+            const buttons = document.querySelectorAll('.root-word');
+            const feedbackMsg = document.getElementById('feedback-msg');
+            const resultWord = document.getElementById('result-word');
+            const prefixEl = document.getElementById('prefix');
+
+            if (choice.isCorrect) {
+                clearInterval(countdownTimer); // Stop timer when correct
+                if (!hasMadeMistakeThisRound) {
+                    scoreBetul++;
+                    document.getElementById('score-b').textContent = scoreBetul;
+                }
+                
+                btn.classList.add('correct');
+                
+                prefixEl.style.animation = 'none'; 
+                prefixEl.style.transition = 'all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                
+                prefixEl.style.left = (btn.offsetLeft - prefixEl.offsetWidth + 10) + 'px';
+                prefixEl.style.top = btn.offsetTop + 'px';
+
+                buttons.forEach(b => {
+                    if (b !== btn) b.classList.add('grayed-out');
+                });
+
+                document.getElementById('instruction-text').style.display = 'none';
+                feedbackMsg.textContent = "恭喜你！答对了。";
+                feedbackMsg.style.color = "#2E7D32";
+
+                let equationHTML = `${currentQuestion.display} = <span style="font-size: 1.1em;">${choice.text}</span>`;
+
+                setTimeout(() => {
+                    prefixEl.style.display = 'none';
+                    resultWord.innerHTML = equationHTML;
+                    resultWord.style.display = 'block';
+                    
+                    // Auto-jump to the next level after showing the answer for 1.5 seconds
+                    setTimeout(() => {
+                        nextLevel();
+                    }, 1500);
+                }, 700);
+
+                gameActive = false;
+            } else {
+                btn.classList.add('incorrect');
+                btn.style.pointerEvents = 'none';
+                feedbackMsg.innerHTML = choice.reason;
+                feedbackMsg.style.color = "#D32F2F";
+                
+                if (!hasMadeMistakeThisRound) {
+                    hasMadeMistakeThisRound = true;
+                }
+                scoreSalah++;
+                document.getElementById('score-s').textContent = scoreSalah;
+            }
+        }
+        
+        function timeIsUp() {
+            if (!gameActive) return;
+            gameActive = false;
+            
+            // Mark as wrong
+            if (!hasMadeMistakeThisRound) {
+                scoreSalah++;
+                document.getElementById('score-s').textContent = scoreSalah;
+            }
+            
+            const feedbackMsg = document.getElementById('feedback-msg');
+            feedbackMsg.innerHTML = "时间到！太慢了。";
+            feedbackMsg.style.color = "#D32F2F";
+            
+            // Show the correct answer
+            const buttons = document.querySelectorAll('.root-word');
+            buttons.forEach(b => {
+                b.style.pointerEvents = 'none';
+                if (b.innerHTML === currentQuestion.answer.toString()) {
+                    b.classList.add('correct');
+                } else {
+                    b.classList.add('grayed-out');
+                }
+            });
+            
+            // Auto jump to next level after 1.5s
+            setTimeout(() => {
+                nextLevel();
+            }, 1500);
+        }
+
+        function nextLevel() {
+            currentRound++;
+            loadLevel();
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>

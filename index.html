@@ -80,13 +80,7 @@
             padding: 20px 40px;
             border-radius: 50px;
             box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-            animation: floatSlowly 4s ease-in-out infinite alternate;
             z-index: 10;
-        }
-
-        @keyframes floatSlowly {
-            0% { transform: translate(0, 0) rotate(-5deg); }
-            100% { transform: translate(60px, -40px) rotate(5deg); }
         }
 
         .words-container {
@@ -236,7 +230,6 @@
                 left: 50%; 
                 top: 155px; 
                 transform: translateX(-50%); 
-                animation: floatMobile 4s ease-in-out infinite alternate; 
             }
             .words-container { 
                 width: 80%; 
@@ -248,10 +241,6 @@
             .feedback-message { font-size: 1.2em; bottom: 40px; padding: 0 10px; line-height: 1.2; }
             .combined-word-display { font-size: 2.2em; left: 50%; top: 30%; width: 100%; white-space: normal; line-height: 1.2; }
             .action-btn { width: 90%; font-size: 1.1em; padding: 12px; bottom: 30px; }
-        }
-        @keyframes floatMobile {
-            0% { transform: translate(-50%, 0) rotate(-3deg); }
-            100% { transform: translate(-50%, -15px) rotate(3deg); }
         }
     </style>
 </head>

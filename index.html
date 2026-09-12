@@ -226,15 +226,32 @@
                 border: none;
                 border-radius: 0;
             }
-            .level-indicator, .music-btn { top: 5px; }
-            .timer-display { font-size: 1.5em; top: 55px; }
-            .instruction-text { font-size: 1.1em; top: 95px; padding: 0 10px; line-height: 1.2; }
-            .floating-prefix { font-size: 2em; padding: 10px 20px; left: 5%; top: 26%; }
-            .words-container { width: 55%; right: 5%; top: 42%; gap: 10px; }
-            .root-word { font-size: 1.8em; padding: 8px 5px; }
-            .feedback-message { font-size: 1em; bottom: 130px; padding: 0 5px; line-height: 1.2; }
-            .combined-word-display { font-size: 2.2em; left: 50%; top: 25%; width: 100%; white-space: normal; line-height: 1.2; }
-            .action-btn { width: 90%; font-size: 1.1em; padding: 12px; bottom: 70px; }
+            .level-indicator { font-size: 1.1em; top: 10px; left: 10px; padding: 5px 10px; }
+            .music-btn { font-size: 1em; top: 10px; right: 10px; padding: 5px 10px; }
+            .timer-display { font-size: 1.2em; top: 60px; width: auto; padding: 5px 15px; }
+            .instruction-text { font-size: 1.1em; top: 105px; padding: 0 10px; line-height: 1.2; }
+            .floating-prefix { 
+                font-size: 2.2em; 
+                padding: 10px 20px; 
+                left: 50%; 
+                top: 155px; 
+                transform: translateX(-50%); 
+                animation: floatMobile 4s ease-in-out infinite alternate; 
+            }
+            .words-container { 
+                width: 80%; 
+                left: 10%; 
+                top: 250px; 
+                gap: 12px; 
+            }
+            .root-word { font-size: 2em; padding: 12px 10px; }
+            .feedback-message { font-size: 1.2em; bottom: 40px; padding: 0 10px; line-height: 1.2; }
+            .combined-word-display { font-size: 2.2em; left: 50%; top: 30%; width: 100%; white-space: normal; line-height: 1.2; }
+            .action-btn { width: 90%; font-size: 1.1em; padding: 12px; bottom: 30px; }
+        }
+        @keyframes floatMobile {
+            0% { transform: translate(-50%, 0) rotate(-3deg); }
+            100% { transform: translate(-50%, -15px) rotate(3deg); }
         }
     </style>
 </head>
@@ -377,10 +394,11 @@
             prefixEl.textContent = currentQuestion.display + " = ";
             
             prefixEl.style.display = 'block';
-            prefixEl.style.animation = 'floatSlowly 4s ease-in-out infinite alternate';
+            prefixEl.style.animation = '';
             prefixEl.style.transition = 'none';
-            prefixEl.style.left = '8%';
-            prefixEl.style.top = '40%';
+            prefixEl.style.left = '';
+            prefixEl.style.top = '';
+            prefixEl.style.transform = '';
             
             document.getElementById('result-word').style.display = 'none';
             
@@ -432,6 +450,7 @@
                 
                 prefixEl.style.animation = 'none'; 
                 prefixEl.style.transition = 'all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                prefixEl.style.transform = 'none';
                 
                 prefixEl.style.left = (btn.offsetLeft - prefixEl.offsetWidth + 10) + 'px';
                 prefixEl.style.top = btn.offsetTop + 'px';

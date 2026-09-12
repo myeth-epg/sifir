@@ -409,8 +409,8 @@
             
             let choices = [
                 { text: currentQuestion.answer.toString(), isCorrect: true, reason: "" },
-                { text: wrongAnswers[0].toString(), isCorrect: false, reason: "答错了！请再试一次。" },
-                { text: wrongAnswers[1].toString(), isCorrect: false, reason: "答错了！请再试一次。" }
+                { text: wrongAnswers[0].toString(), isCorrect: false, reason: "错 ！" },
+                { text: wrongAnswers[1].toString(), isCorrect: false, reason: "错 ！" }
             ];
             
             choices = shuffleArray(choices);
@@ -456,7 +456,7 @@
                 });
 
                 document.getElementById('instruction-text').style.display = 'none';
-                feedbackMsg.textContent = "恭喜你！答对了。";
+                feedbackMsg.textContent = "对 ！";
                 feedbackMsg.style.color = "#2E7D32";
 
                 let equationHTML = `${currentQuestion.display} = <span style="font-size: 1.1em;">${choice.text}</span>`;
@@ -498,7 +498,7 @@
             }
             
             const feedbackMsg = document.getElementById('feedback-msg');
-            feedbackMsg.innerHTML = "时间到！太慢了。";
+            feedbackMsg.innerHTML = "超时 ！";
             feedbackMsg.style.color = "#D32F2F";
             
             // Show the correct answer

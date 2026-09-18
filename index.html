@@ -253,18 +253,24 @@
 </head>
 <body>
 
-    <audio id="bgm" loop>
-        <source src="bgm.mp3" type="audio/mpeg">
+    <audio id="sfx-correct">
+        <source src="correct.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfx-wrong">
+        <source src="wrong.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfx-timeout">
+        <source src="timeout.mp3" type="audio/mpeg">
     </audio>
 
     <div class="game-area" id="game-area">
-        <div class="timer-display" id="timer-display">时间: 5秒</div>
+        <div class="timer-display" id="timer-display">时间: 10秒</div>
         <div class="level-indicator" id="level-indicator">
             第 1 关<br>
             <span style="font-size: 0.8em; color: #2E7D32;">✅ <span id="score-b">0</span></span> | 
             <span style="font-size: 0.8em; color: #c62828;">❌ <span id="score-s">0</span></span>
         </div>
-        <button class="music-btn" id="music-btn" onclick="toggleMusic()">🔇 音乐</button>
+        <button class="music-btn" id="music-btn" onclick="toggleMusic()">🔇 音效</button>
         
         <div class="instruction-text" id="instruction-text">请为这道乘法题选择正确的答案。</div>
         
@@ -290,19 +296,26 @@
         let totalQuestions = 0;
         let originalData = [];
         let countdownTimer;
-        let timeLeft = 5;
+        let timeLeft = 10;
         
         function toggleMusic() {
-            const bgm = document.getElementById('bgm');
             const btn = document.getElementById('music-btn');
             if (isMusicPlaying) {
-                bgm.pause();
-                btn.textContent = "🔇 音乐";
+                btn.textContent = "🔇 音效";
             } else {
-                bgm.play().catch(e => console.log("Audio play failed:", e));
-                btn.textContent = "🔊 音乐";
+                btn.textContent = "🔊 音效";
             }
             isMusicPlaying = !isMusicPlaying;
+        }
+
+        function playSound(id) {
+            if (isMusicPlaying) {
+                const sfx = document.getElementById(id);
+                if (sfx) {
+                    sfx.currentTime = 0;
+                    sfx.play().catch(e => console.log("SFX play failed:", e));
+                }
+            }
         }
 
         function shuffleArray(array) {
@@ -368,7 +381,7 @@
             currentQuestion = allQuestions.pop();
             
             clearInterval(countdownTimer);
-            timeLeft = 5;
+            timeLeft = 10;
             document.getElementById('timer-display').textContent = `时间: ${timeLeft}秒`;
             countdownTimer = setInterval(() => {
                 if (!gameActive) return;
@@ -436,6 +449,7 @@
             const prefixEl = document.getElementById('prefix');
 
             if (choice.isCorrect) {
+                playSound('sfx-correct');
                 clearInterval(countdownTimer); // Stop timer when correct
                 if (!hasMadeMistakeThisRound) {
                     scoreBetul++;
@@ -474,6 +488,7 @@
 
                 gameActive = false;
             } else {
+                playSound('sfx-wrong');
                 btn.classList.add('incorrect');
                 btn.style.pointerEvents = 'none';
                 feedbackMsg.innerHTML = choice.reason;
@@ -490,6 +505,7 @@
         function timeIsUp() {
             if (!gameActive) return;
             gameActive = false;
+            playSound('sfx-timeout');
             
             // Mark as wrong
             if (!hasMadeMistakeThisRound) {

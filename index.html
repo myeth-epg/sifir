@@ -335,6 +335,9 @@
                 // Copy data to questions pool and shuffle
                 allQuestions = [...originalData];
                 shuffleArray(allQuestions);
+                
+                // Limit to 50 questions per session
+                allQuestions = allQuestions.slice(0, 50);
                 totalQuestions = allQuestions.length;
                 
                 loadLevel();
